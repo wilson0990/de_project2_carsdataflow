@@ -1,0 +1,9 @@
+{
+	"name": "adf-for-carsdataflow",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4cfc8a13-cc5f-46fb-9c30-79fc436c027a",
+		"tenantId": "084a029e-1435-40bc-8201-87ec1b251fb3"
+	}
+}

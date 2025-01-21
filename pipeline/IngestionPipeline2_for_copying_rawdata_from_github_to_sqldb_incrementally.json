@@ -1,0 +1,181 @@
+{
+	"name": "IngestionPipeline2_for_copying_rawdata_from_github_to_sqldb_incrementally",
+	"properties": {
+		"description": "This Pipeline Copies raw data from GitHub source to azure SQL database - Dynamically",
+		"activities": [
+			{
+				"name": "Copy data1 for incremental load",
+				"description": "Copy activity for GitHub to Azure SQL database for incremental data",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lookup1 for to get LastLoadDateID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup2 for finding maximum LastLoadDateId",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from [dbo].[CarsData] where Date_Id > '@{activity('Lookup2 for finding maximum LastLoadDateId').output}' and Date_Id <= '@{activity('Lookup2 for finding maximum LastLoadDateId').output.firstRow}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "AzureSqlTable1_Sink_SQLDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "CarsData"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_Parquet1_adls",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Lookup1 for to get LastLoadDateID",
+				"description": "Lookup1 for to retrieve the Last Load Date ID from GetLastLoadDateID",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "Select LastLoadDateId from [dbo].[LastLoadTracking]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1_Sink_SQLDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "LastLoadTracking"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Lookup2 for finding maximum LastLoadDateId",
+				"description": "This Lookup helps to get the max or current last Load date Id",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select max(Date_ID) as MaxDateId from [dbo].[CarsData];",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1_Sink_SQLDB",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": "CarsData"
+						}
+					}
+				}
+			},
+			{
+				"name": "Stored procedure1 to update the LastLoadDateID",
+				"description": "Once data is sent to SQL Database, this stored procedure will update the LastLoadDateId with NewLastLoadDateId",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy data1 for incremental load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[UpdateLastLoadDateId]",
+					"storedProcedureParameters": {
+						"NewLastLoadDateId": {
+							"value": {
+								"value": "@{activity('Lookup2 for finding maximum LastLoadDateId').output.firstRow.MaxDateId }",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1_ls_for_SQLdb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "cars-dataflow-adf-pipelines"
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-01-21T15:28:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
