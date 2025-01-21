@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-for-carsdataflow"
+		},
+		"AzureSqlDatabase1_ls_for_SQLdb_password": {
+			"value": ""
+		},
+		"ls_for_AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_ls_for_SQLdb_properties_typeProperties_server": {
+			"value": "serverforcarsdataflow.database.windows.net"
+		},
+		"AzureSqlDatabase1_ls_for_SQLdb_properties_typeProperties_database": {
+			"value": "databaseforcarsdataflow"
+		},
+		"AzureSqlDatabase1_ls_for_SQLdb_properties_typeProperties_userName": {
+			"value": "carsdataflowadmin"
+		},
+		"HttpServer1_github_properties_typeProperties_url": {
+			"value": "https://raw.githubusercontent.com/"
+		},
+		"ls_for_AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://adlsforcarsdataflow.dfs.core.windows.net/"
+		}
+	}
+}
