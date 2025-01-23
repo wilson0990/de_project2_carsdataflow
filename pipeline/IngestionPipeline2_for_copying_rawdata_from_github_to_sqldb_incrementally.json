@@ -33,7 +33,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "select * from [dbo].[CarsData] where Date_Id > '@{activity('Lookup2 for finding maximum LastLoadDateId').output}' and Date_Id <= '@{activity('Lookup2 for finding maximum LastLoadDateId').output.firstRow}'",
+							"value": "SELECT * \nFROM [dbo].[CarsData] \nWHERE \n    Date_Id > '@{activity('Lookup1 for to get LastLoadDateID').output.value[0].LastLoadDateId}'\n    AND Date_Id <= '@{activity('Lookup2 for finding maximum LastLoadDateId').output.firstRow.MaxDateId}'",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
