@@ -8,6 +8,9 @@
 		"AzureSqlDatabase1_ls_for_SQLdb_password": {
 			"value": ""
 		},
+		"ls_AzureDatabricks1_accessToken": {
+			"value": ""
+		},
 		"ls_for_AzureDataLakeStorage1_accountKey": {
 			"value": ""
 		},
