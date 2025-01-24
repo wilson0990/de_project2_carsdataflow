@@ -169,6 +169,33 @@
 					"referenceName": "AzureSqlDatabase1_ls_for_SQLdb",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Bronze to silver Notebook",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Stored procedure1 to update the LastLoadDateID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/carsdataflow_databricks_notebooks/bronze-to-silver"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"folder": {
